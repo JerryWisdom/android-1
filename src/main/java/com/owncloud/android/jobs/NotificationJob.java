@@ -108,6 +108,7 @@ public class NotificationJob extends Job {
     @Override
     protected Result onRunJob(@NonNull Params params) {
         context = getContext();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         PersistableBundleCompat persistableBundleCompat = getParams().getExtras();
         String subject = persistableBundleCompat.getString(KEY_NOTIFICATION_SUBJECT, "");
         String signature = persistableBundleCompat.getString(KEY_NOTIFICATION_SIGNATURE, "");
@@ -133,8 +134,11 @@ public class NotificationJob extends Job {
                         DecryptedPushMessage decryptedPushMessage = gson.fromJson(new String(decryptedSubject),
                                                                                   DecryptedPushMessage.class);
 
-                        // We ignore Spreed messages for now
-                        if (!APP_SPREED.equals(decryptedPushMessage.getApp())) {
+                        if (decryptedPushMessage.delete) {
+                            notificationManager.cancel(decryptedPushMessage.nid);
+                        } else if (decryptedPushMessage.deleteAll) {
+                            notificationManager.cancelAll();
+                        } else {
                             fetchCompleteNotification(signatureVerification.getAccount(), decryptedPushMessage);
                         }
                     }
@@ -222,7 +226,7 @@ public class NotificationJob extends Job {
                 .setContentIntent(pendingIntent).build());
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(pushNotificationId, notificationBuilder.build());
+        notificationManager.notify(notification.getNotificationId(), notificationBuilder.build());
     }
 
     private void fetchCompleteNotification(Account account, DecryptedPushMessage decryptedPushMessage) {
