@@ -1965,6 +1965,7 @@ public class FileDataStorageManager {
             .getValue());
         cv.put(ProviderTableMeta.CAPABILITIES_RICHDOCUMENT_TEMPLATES, capability.getRichDocumentsTemplatesAvailable()
             .getValue());
+        cv.put(ProviderTableMeta.CAPABILITIES_RICHDOCUMENT_PRODUCT_NAME, capability.getRichDocumentsProductName());
 
         if (capabilityExists(account.name)) {
             if (getContentResolver() != null) {
@@ -2132,6 +2133,8 @@ public class FileDataStorageManager {
                 mimetypes = "";
             }
             capability.setRichDocumentsMimeTypeList(Arrays.asList(mimetypes.split(",")));
+            capability.setRichDocumentsProductName(
+                c.getString(c.getColumnIndex(ProviderTableMeta.CAPABILITIES_RICHDOCUMENT_PRODUCT_NAME)));
         }
         return capability;
     }
